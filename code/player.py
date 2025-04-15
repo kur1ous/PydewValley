@@ -30,14 +30,34 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.Vector2()
         self.base_speed = 200
 
+        self.tool_list = [
+            'axe',
+            'water',
+            'hoe',
+        ]
+        self.tool_index = 0
+
         self.timers = {
-            'tool use': Timer(0.35)
+            'tool use': Timer(2, self.use_tool)
         }
-        self.selected_tool = 'axe'
+
 
     @property
     def image(self):
         return self.animations[self.status][int(self.frame_index)]
+    
+    @property
+    def selected_tool(self):
+        return self.tool_list[self.tool_index]
+
+    
+    def use_tool(self):
+        print(f'Using {self.selected_tool}')
+
+    def tool_scroll(self):
+        self.tool_index += 1
+        self.tool_index = self.tool_index % len(self.tool_list)
+        print(self.tool_index)
 
     def animate(self, dt):
 
@@ -48,9 +68,13 @@ class Player(pygame.sprite.Sprite):
     def get_status(self):
  
         self.status = self.status.split("_")[0]
-  
+
+
+
+
         if self.direction.y > 0:
             self.status = 'down'
+
         elif self.direction.y < 0:
             self.status = 'up'
         elif self.direction.x > 0:
@@ -58,11 +82,15 @@ class Player(pygame.sprite.Sprite):
         elif self.direction.x < 0:
             self.status = 'left'
 
-        if self.direction.magnitude() == 0:
+        if self.timers['tool use'].active:
+            self.status += f'_{self.tool_list[self.tool_index]}'
+
+        elif self.direction.magnitude() == 0:
             self.status += '_idle'
 
     def input(self):
         keys = pygame.key.get_pressed()
+        keys_just_pressed = pygame.key.get_just_pressed()
 
         self.direction.y = keys[self.down_key] - keys[self.up_key] #true/false -- 1/0
         self.direction.x = keys[self.right_key] - keys[self.left_key]
@@ -72,8 +100,13 @@ class Player(pygame.sprite.Sprite):
         else:
             self.run_mult = 1
 
+        if keys_just_pressed[pygame.K_q]:
+            print('test')
+            self.tool_scroll()
+        
         if keys[self.use_key]:
             self.timers['tool use'].activate()
+
     
     def movement(self, dt):
         if self.direction.magnitude() != 0:
@@ -88,7 +121,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.base_speed * self.run_mult
         self.input()
         self.get_status()
-        self.update_timers()
+        self.update_timers(dt)
         self.animate(dt)
         self.movement(dt)
     

@@ -14,12 +14,9 @@ class Level:
 
 		self.player = Player((50,200), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, self.all_sprites)
 
-		self.timer = Timer(5)
-		self.timer.activate()
 
 	def run(self,dt):
 		self.display_surface.fill('black')
 		self.all_sprites.draw(self.display_surface)
 		self.all_sprites.update(dt)
 
-		self.timer.update(dt)
