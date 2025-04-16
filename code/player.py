@@ -4,7 +4,7 @@ from support import import_assets
 from mytimer import Timer
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
@@ -12,13 +12,16 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         # self.image = self.animations['up'][0]
 
-
         self.up_key = up_key
         self.down_key = down_key
         self.right_key = right_key
         self.left_key = left_key
         self.run_key = run_key
         self.use_key = use_key
+        self.plant_key = plant_key
+        self.tool_scroll_key = tool_scroll_key
+        self.seed_scroll_key = seed_scroll_key
+
         self.run_mult = 1
 
         self.animation_speed = 5
@@ -37,8 +40,15 @@ class Player(pygame.sprite.Sprite):
         ]
         self.tool_index = 0
 
+        self.seed_list = [
+            'corn',
+            'tomato',
+        ]
+        self.seed_index = 0
+
         self.timers = {
-            'tool use': Timer(2, self.use_tool)
+            'tool use': Timer(2, self.use_tool),
+            'seed use': Timer(1, self.use_seed)
         }
 
 
@@ -49,7 +59,13 @@ class Player(pygame.sprite.Sprite):
     @property
     def selected_tool(self):
         return self.tool_list[self.tool_index]
-
+    
+    @property
+    def selected_seed(self):
+        return self.seed_list[self.seed_index]
+    
+    def use_seed(self):
+        print(f'Planting {self.selected_seed}')
     
     def use_tool(self):
         print(f'Using {self.selected_tool}')
@@ -57,20 +73,22 @@ class Player(pygame.sprite.Sprite):
     def tool_scroll(self):
         self.tool_index += 1
         self.tool_index = self.tool_index % len(self.tool_list)
-        print(self.tool_index)
+        print(self.tool_list[self.tool_index])
+
+    def seed_scroll(self):
+        self.seed_index += 1
+        self.seed_index = self.seed_index % len(self.seed_list)
+        print(self.seed_list[self.seed_index])
 
     def animate(self, dt):
 
-        self.frame_index += dt * self.animation_speed * self.run_mult
+        self.frame_index += dt * self.animation_speed
         self.frame_index = self.frame_index % len(self.animations[self.status])
         # self.image = self.animations[self.status][int(self.frame_index)]
 
     def get_status(self):
  
         self.status = self.status.split("_")[0]
-
-
-
 
         if self.direction.y > 0:
             self.status = 'down'
@@ -84,6 +102,9 @@ class Player(pygame.sprite.Sprite):
 
         if self.timers['tool use'].active:
             self.status += f'_{self.tool_list[self.tool_index]}'
+        
+        elif self.timers['seed use'].active:
+            self.status += '_idle'
 
         elif self.direction.magnitude() == 0:
             self.status += '_idle'
@@ -100,12 +121,19 @@ class Player(pygame.sprite.Sprite):
         else:
             self.run_mult = 1
 
-        if keys_just_pressed[pygame.K_q]:
-            print('test')
+        if keys_just_pressed[self.tool_scroll_key]:
             self.tool_scroll()
+        
+        if keys_just_pressed[self.seed_scroll_key]:
+            self.seed_scroll()
         
         if keys[self.use_key]:
             self.timers['tool use'].activate()
+    
+        if keys[self.plant_key]:
+            self.timers['seed use'].activate()
+        
+
 
     
     def movement(self, dt):
