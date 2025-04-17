@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
 
         self.timers = {
             'tool use': Timer(2, self.use_tool),
-            'seed use': Timer(1, self.use_seed)
+            'seed use': Timer(1, self.use_seed),
         }
 
 
@@ -130,11 +130,8 @@ class Player(pygame.sprite.Sprite):
         if keys[self.use_key]:
             self.timers['tool use'].activate()
     
-        if keys[self.plant_key]:
+        elif keys[self.plant_key]:
             self.timers['seed use'].activate()
-        
-
-
     
     def movement(self, dt):
         if self.direction.magnitude() != 0:

@@ -12,6 +12,9 @@ class Overlay:
 
     def draw(self, surface):
         img = self.tool_images[self.player.selected_tool]
+        seedimg = self.seed_images[self.player.selected_seed]
         rect = img.get_frect(midbottom = OVERLAY_POSITIONS['tool'])
+        seedrect = img.get_frect(midbottom = OVERLAY_POSITIONS['seed'])
         surface.blit(img, rect)
+        surface.blit(seedimg, seedrect)
         
