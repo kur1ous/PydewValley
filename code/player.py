@@ -22,6 +22,8 @@ class Player(pygame.sprite.Sprite):
         self.tool_scroll_key = tool_scroll_key
         self.seed_scroll_key = seed_scroll_key
 
+        self.z = LAYERS['main']
+
         self.run_mult = 1
 
         self.animation_speed = 5
