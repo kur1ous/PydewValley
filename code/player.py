@@ -2,14 +2,16 @@ import pygame
 from settings import *
 from support import import_assets
 from mytimer import Timer
+from debug import get_coords
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
         self.status = "right"
         self.frame_index = 0
+        self.collision_sprites = collision_sprites
         # self.image = self.animations['up'][0]
 
         self.up_key = up_key
@@ -129,6 +131,9 @@ class Player(pygame.sprite.Sprite):
         if keys_just_pressed[self.seed_scroll_key]:
             self.seed_scroll()
         
+        if keys_just_pressed[pygame.K_1]:
+            get_coords(self)
+        
         if keys[self.use_key]:
             self.timers['tool use'].activate()
     
@@ -138,7 +143,23 @@ class Player(pygame.sprite.Sprite):
     def movement(self, dt):
         if self.direction.magnitude() != 0:
             self.direction.normalize_ip()
-        self.rect.center += self.direction * self.speed * dt
+        self.rect.x += self.direction.x * self.speed * dt
+        
+        for sprite in self.collision_sprites:
+            if self.rect.colliderect(sprite.rect):
+                if self.direction.x > 0:
+                    self.rect.right = sprite.rect.left
+                if self.direction.x < 0:
+                    self.rect.left = sprite.rect.right
+                
+
+        self.rect.y += self.direction.y * self.speed * dt 
+        for sprite in self.collision_sprites:
+            if self.rect.colliderect(sprite.rect):
+                if self.direction.y > 0:
+                    self.rect.bottom = sprite.rect.top
+                if self.direction.y < 0:
+                    self.rect.top = sprite.rect.bottom
 
     def update_timers(self, dt):
         for timer in self.timers.values():
