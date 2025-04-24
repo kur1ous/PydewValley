@@ -26,9 +26,13 @@ class Level:
 			for x, y, img in tmx_data.get_layer_by_name(layer).tiles():
 				Generic((x * TILE_SIZE, y * TILE_SIZE), img, LAYERS['house bottom'], self.all_sprites)
 	
-		for j in ['HouseWalls', 'HouseFurnitureTop', 'Fence']:
-			for x, y, img in tmx_data.get_layer_by_name(j).tiles():
+		for layer in ['HouseWalls', 'HouseFurnitureTop', 'Fence']:
+			for x, y, img in tmx_data.get_layer_by_name(layer).tiles():
 				Generic((x*TILE_SIZE, y*TILE_SIZE), img, LAYERS['main'], [self.all_sprites, self.collision_sprites])
+		
+		for layer in ['Collision']:
+			for x, y, img in tmx_data.get_layer_by_name(layer).tiles():
+				Generic((x*TILE_SIZE, y*TILE_SIZE), img, LAYERS['main'], self.collision_sprites)
 
 		water_frames = import_folder("PydewValley/graphics/water")
 		for x, y, img in tmx_data.get_layer_by_name('Water').tiles():
@@ -43,7 +47,7 @@ class Level:
 		ground_image = pygame.image.load("PydewValley/graphics/world/ground.png").convert_alpha()
 		Generic((0,0), ground_image, LAYERS['ground'], self.all_sprites)
 
-		self.player = Player((1544, 1616), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.all_sprites, )
+		self.player = Player((1547.813354, 1943.214233), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.all_sprites, )
 		self.overlay = Overlay(self.player)
 
 

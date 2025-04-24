@@ -33,6 +33,8 @@ class Player(pygame.sprite.Sprite):
         self.is_tool_active = False
 
         self.rect = self.image.get_frect(center=pos)
+        self.hitbox = self.rect.inflate(-126,-70)
+
     
         self.direction = pygame.Vector2()
         self.base_speed = 200
@@ -67,6 +69,10 @@ class Player(pygame.sprite.Sprite):
     @property
     def selected_seed(self):
         return self.seed_list[self.seed_index]
+    
+    @property
+    def locked(self):
+        return self.timers['seed use'].active or self.timers['tool use'].active
     
     def use_seed(self):
         print(f'Planting {self.selected_seed}')
@@ -114,6 +120,7 @@ class Player(pygame.sprite.Sprite):
             self.status += '_idle'
 
     def input(self):
+        if self.locked: return
         keys = pygame.key.get_pressed()
         keys_just_pressed = pygame.key.get_just_pressed()
 
@@ -143,23 +150,25 @@ class Player(pygame.sprite.Sprite):
     def movement(self, dt):
         if self.direction.magnitude() != 0:
             self.direction.normalize_ip()
-        self.rect.x += self.direction.x * self.speed * dt
+        self.hitbox.x += self.direction.x * self.speed * dt
         
         for sprite in self.collision_sprites:
-            if self.rect.colliderect(sprite.rect):
+            if self.hitbox.colliderect(sprite.hitbox):
                 if self.direction.x > 0:
-                    self.rect.right = sprite.rect.left
+                    self.hitbox.right = sprite.hitbox.left
                 if self.direction.x < 0:
-                    self.rect.left = sprite.rect.right
+                    self.hitbox.left = sprite.hitbox.right
                 
 
-        self.rect.y += self.direction.y * self.speed * dt 
+        self.hitbox.y += self.direction.y * self.speed * dt 
         for sprite in self.collision_sprites:
-            if self.rect.colliderect(sprite.rect):
+            if self.hitbox.colliderect(sprite.hitbox):
                 if self.direction.y > 0:
-                    self.rect.bottom = sprite.rect.top
+                    self.hitbox.bottom = sprite.hitbox.top
                 if self.direction.y < 0:
-                    self.rect.top = sprite.rect.bottom
+                    self.hitbox.top = sprite.hitbox.bottom
+
+        self.rect.center = self.hitbox.center
 
     def update_timers(self, dt):
         for timer in self.timers.values():

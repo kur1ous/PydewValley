@@ -9,7 +9,11 @@ class Generic(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = surface
         self.rect = self.image.get_frect(topleft=pos)
+        self.hitbox = self.rect.inflate(-10, -10)
+
+        self.hitbox = self.rect.inflate(-0.2* self.rect.width, -0.75* self.rect.height)
         self.z = z
+
 
 class Wildflower(Generic):
     def __init__(self, pos, surface, groups):
@@ -17,6 +21,7 @@ class Wildflower(Generic):
 
 class Tree(Generic):
     def __init__(self, pos, surface, groups):
+        # self.hitbox = Vector2(self.rect.center)
         super().__init__(pos, surface, LAYERS['main'], groups)
 
 
