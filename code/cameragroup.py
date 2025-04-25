@@ -6,7 +6,7 @@ class CameraGroup(pygame.sprite.Group):
         super().__init__()
 
     def draw(self, surface, offset):
-        print(offset)
+        # print(offset)
         offset = pygame.Vector2(offset)
         offset -= pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 

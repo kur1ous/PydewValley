@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from support import import_assets
-
+import random
 
 class Generic(pygame.sprite.Sprite):
 
@@ -20,9 +20,39 @@ class Wildflower(Generic):
         super().__init__(pos, surface, LAYERS['main'], groups)
 
 class Tree(Generic):
-    def __init__(self, pos, surface, groups):
+    def __init__(self, pos, surface, name, apple_image, groups):
         # self.hitbox = Vector2(self.rect.center)
         super().__init__(pos, surface, LAYERS['main'], groups)
+        self.name = name
+        self.apple_image = apple_image 
+
+        self.apple_sprites = pygame.sprite.Group()
+        num_apples = random.randint(0, 3)
+        apple_list = random.sample(APPLE_POS[self.name], num_apples)
+        all_sprites = self.groups()[0]
+
+        self.offset = pygame.Vector2(self.rect.topleft)
+
+        self.health = 3
+        self.stump_path = f'PydewValley/graphics/stumps/{self.name.lower()}.png'
+        self.stump_image = pygame.image.load(self.stump_path).convert_alpha()
+
+        self.tree_life = True
+
+        for appple_pos in apple_list:
+            Generic(appple_pos+self.offset, self.apple_image, LAYERS['fruit'], [all_sprites, self.apple_sprites])
+    def damage(self):
+        if self.tree_life:
+            if len(self.apple_sprites.sprites()) > 0:
+                random_apple = random.choice(self.apple_sprites.sprites())
+                random_apple.kill()
+            else:
+                print(f"OUCH! {self.health}")
+                self.health -= 1
+                if self.health <= 0:
+                    self.image = self.stump_image
+                    self.tree_life = False
+            
 
 
 class Water(Generic):

@@ -5,13 +5,14 @@ from mytimer import Timer
 from debug import get_coords
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
         self.status = "right"
         self.frame_index = 0
         self.collision_sprites = collision_sprites
+        self.tree_sprites = tree_sprites
         # self.image = self.animations['up'][0]
 
         self.up_key = up_key
@@ -53,7 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.seed_index = 0
 
         self.timers = {
-            'tool use': Timer(2, self.use_tool),
+            'tool use': Timer(1, self.use_tool),
             'seed use': Timer(1, self.use_seed),
         }
 
@@ -79,6 +80,13 @@ class Player(pygame.sprite.Sprite):
     
     def use_tool(self):
         print(f'Using {self.selected_tool}')
+        interaction_point = self.get_interaction_point()
+        if self.selected_tool == 'axe':
+
+            for tree in self.tree_sprites:
+                if tree.rect.collidepoint(interaction_point):
+                    print(f"chopping {tree}")
+                    tree.damage()
 
     def tool_scroll(self):
         self.tool_index += 1
@@ -173,6 +181,12 @@ class Player(pygame.sprite.Sprite):
     def update_timers(self, dt):
         for timer in self.timers.values():
             timer.update(dt)
+    
+    def get_interaction_point(self):
+        direction = self.status.split("_")[0]
+        offset = pygame.Vector2(PLAYER_TOOL_OFFSET[direction])
+        return self.rect.center + offset
+
 
     def update(self, dt):
         self.speed = self.base_speed * self.run_mult
