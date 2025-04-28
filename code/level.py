@@ -44,14 +44,17 @@ class Level:
 		for obj in tmx_data.get_layer_by_name('Decoration'):
 			Wildflower((obj.x, obj.y), obj.image, self.all_sprites)
 
-		for obj in tmx_data.get_layer_by_name('Trees'):
-			Tree((obj.x, obj.y), obj.image, obj.name, apple_image, [self.all_sprites, self.collision_sprites, self.tree_sprites])
+
 
 			
 		ground_image = pygame.image.load("PydewValley/graphics/world/ground.png").convert_alpha()
 		Generic((0,0), ground_image, LAYERS['ground'], self.all_sprites)
 
 		self.player = Player((1547.813354, 1943.214233), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.tree_sprites, self.all_sprites, )
+		
+		for obj in tmx_data.get_layer_by_name('Trees'):
+			Tree((obj.x, obj.y), obj.image, obj.name, apple_image, self.player.add_item, [self.all_sprites, self.collision_sprites, self.tree_sprites])
+
 		self.overlay = Overlay(self.player)
 
 

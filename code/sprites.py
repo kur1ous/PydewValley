@@ -20,11 +20,12 @@ class Wildflower(Generic):
         super().__init__(pos, surface, LAYERS['main'], groups)
 
 class Tree(Generic):
-    def __init__(self, pos, surface, name, apple_image, groups):
+    def __init__(self, pos, surface, name, apple_image, add_item, groups):
         # self.hitbox = Vector2(self.rect.center)
         super().__init__(pos, surface, LAYERS['main'], groups)
         self.name = name
         self.apple_image = apple_image 
+        self.add_item = add_item
 
         self.apple_sprites = pygame.sprite.Group()
         num_apples = random.randint(0, 3)
@@ -32,6 +33,7 @@ class Tree(Generic):
         all_sprites = self.groups()[0]
 
         self.offset = pygame.Vector2(self.rect.topleft)
+
 
         self.health = 3
         self.stump_path = f'PydewValley/graphics/stumps/{self.name.lower()}.png'
@@ -46,11 +48,20 @@ class Tree(Generic):
             if len(self.apple_sprites.sprites()) > 0:
                 random_apple = random.choice(self.apple_sprites.sprites())
                 random_apple.kill()
+                Particle(random_apple.rect.topleft, self.apple_image, LAYERS['fruit'], self.groups()[0])
+                self.add_item('apple')
+            
+
             else:
                 print(f"OUCH! {self.health}")
                 self.health -= 1
+                Particle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0], 0.05)
                 if self.health <= 0:
+                    Particle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0])
+                    
                     self.image = self.stump_image
+                    self.rect = self.image.get_frect(midbottom=self.rect.midbottom)
+                    self.hitbox = self.rect
                     self.tree_life = False
             
 
@@ -77,3 +88,26 @@ class Water(Generic):
 
     def update(self, dt):
         self.animate(dt)
+
+
+class Particle(Generic):
+    def __init__(self, pos, surface, z, groups, duration = 0.2):
+        super().__init__(pos, surface, z, groups)
+        self.duration = duration
+
+        mask_surface = pygame.mask.from_surface(surface)
+        new_surface = mask_surface.to_surface()
+        new_surface.set_colorkey("black")
+        self.image = new_surface
+        
+# class FadingParticle(Particle):
+#     def __init__(self, pos, surface, z, groups, duration=0.2):
+#         super().__init__(pos, surface, z, groups)
+#         self.duration = duration
+        
+
+
+    def update(self, dt):
+        self.duration -= dt
+        if self.duration <= 0:
+            self.kill()

@@ -58,6 +58,13 @@ class Player(pygame.sprite.Sprite):
             'seed use': Timer(1, self.use_seed),
         }
 
+        self.item_inventory = {
+            'wood' : 0,
+            'apple' : 0,
+            'corn' : 0,
+            'tomato' : 0
+        }
+
 
     @property
     def image(self):
@@ -154,6 +161,10 @@ class Player(pygame.sprite.Sprite):
     
         elif keys[self.plant_key]:
             self.timers['seed use'].activate()
+
+    def add_item(self, item_name):
+        self.item_inventory[item_name] += 1
+        print(self.item_inventory)
     
     def movement(self, dt):
         if self.direction.magnitude() != 0:
