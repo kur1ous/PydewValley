@@ -5,7 +5,7 @@ from mytimer import Timer
 from debug import get_coords
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, interaction_sprite, next_day, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
@@ -13,6 +13,9 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.collision_sprites = collision_sprites
         self.tree_sprites = tree_sprites
+        self.interaction_sprites = interaction_sprite
+
+        self.next_day = next_day
         # self.image = self.animations['up'][0]
 
         self.up_key = up_key
@@ -95,6 +98,16 @@ class Player(pygame.sprite.Sprite):
                     print(f"chopping {tree}")
                     tree.damage()
 
+    def check_interation(self):
+        for sprite in self.interaction_sprites:
+            if sprite.name == 'Bed':
+                if sprite.rect.collidepoint(self.rect.center):
+                    print(f'{sprite.name}, Day reset!')
+                    self.next_day()
+
+            else:
+                print("nothing to interact with!")
+
     def tool_scroll(self):
         self.tool_index += 1
         self.tool_index = self.tool_index % len(self.tool_list)
@@ -155,6 +168,9 @@ class Player(pygame.sprite.Sprite):
         
         if keys_just_pressed[pygame.K_1]:
             get_coords(self)
+
+        if keys_just_pressed[pygame.K_RETURN]:
+            self.check_interation()
         
         if keys[self.use_key]:
             self.timers['tool use'].activate()
@@ -197,6 +213,9 @@ class Player(pygame.sprite.Sprite):
         direction = self.status.split("_")[0]
         offset = pygame.Vector2(PLAYER_TOOL_OFFSET[direction])
         return self.rect.center + offset
+    
+
+
 
 
     def update(self, dt):

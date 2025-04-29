@@ -26,11 +26,9 @@ class Tree(Generic):
         self.name = name
         self.apple_image = apple_image 
         self.add_item = add_item
+        self.og_img = self.image
 
-        self.apple_sprites = pygame.sprite.Group()
-        num_apples = random.randint(0, 3)
-        apple_list = random.sample(APPLE_POS[self.name], num_apples)
-        all_sprites = self.groups()[0]
+
 
         self.offset = pygame.Vector2(self.rect.topleft)
 
@@ -40,9 +38,8 @@ class Tree(Generic):
         self.stump_image = pygame.image.load(self.stump_path).convert_alpha()
 
         self.tree_life = True
-
-        for appple_pos in apple_list:
-            Generic(appple_pos+self.offset, self.apple_image, LAYERS['fruit'], [all_sprites, self.apple_sprites])
+        self.create_fruit()
+        
     def damage(self):
         if self.tree_life:
             if len(self.apple_sprites.sprites()) > 0:
@@ -53,7 +50,7 @@ class Tree(Generic):
             
 
             else:
-                print(f"OUCH! {self.health}")
+                print(f"OUCH! {self.health} {self.tree_life}")
                 self.health -= 1
                 Particle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0], 0.05)
                 if self.health <= 0:
@@ -63,7 +60,23 @@ class Tree(Generic):
                     self.rect = self.image.get_frect(midbottom=self.rect.midbottom)
                     self.hitbox = self.rect
                     self.tree_life = False
-            
+    
+    def reset(self):
+        self.tree_life = True
+        self.image = self.og_img
+        self.rect = self.image.get_frect(midbottom=self.rect.midbottom)
+        self.health = 3
+        for apple in self.apple_sprites.sprites():
+            apple.kill()
+        self.create_fruit() 
+
+    def create_fruit(self):
+        self.apple_sprites = pygame.sprite.Group()
+        num_apples = random.randint(0, 3)
+        apple_list = random.sample(APPLE_POS[self.name], num_apples)
+        all_sprites = self.groups()[0]
+        for appple_pos in apple_list:
+            Generic(appple_pos+self.offset, self.apple_image, LAYERS['fruit'], [all_sprites, self.apple_sprites])
 
 
 class Water(Generic):
@@ -99,15 +112,19 @@ class Particle(Generic):
         new_surface = mask_surface.to_surface()
         new_surface.set_colorkey("black")
         self.image = new_surface
-        
-# class FadingParticle(Particle):
-#     def __init__(self, pos, surface, z, groups, duration=0.2):
-#         super().__init__(pos, surface, z, groups)
-#         self.duration = duration
-        
-
 
     def update(self, dt):
         self.duration -= dt
         if self.duration <= 0:
             self.kill()
+
+class FadingParticle(Particle):
+    def __init__(self, pos, surface, z, groups, duration=0.2):
+        super().__init__(pos, surface, z, groups)
+        self.duration = duration
+
+class Interaction(Generic):
+    def __init__(self, pos, size, name, groups):
+        surface = pygame.Surface(size)
+        super().__init__(pos, surface, LAYERS['main'], groups)
+        self.name = name

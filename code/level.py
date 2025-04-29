@@ -4,7 +4,7 @@ from settings import *
 from mytimer import Timer
 from overlay import Overlay
 from cameragroup import CameraGroup
-from sprites import Generic, Water, Wildflower, Tree
+from sprites import Generic, Water, Wildflower, Tree, Interaction
 import pytmx 
 from pytmx.util_pygame import load_pygame
 from support import import_folder
@@ -20,6 +20,7 @@ class Level:
 		self.all_sprites = CameraGroup()
 		self.collision_sprites = pygame.sprite.Group()
 		self.tree_sprites = pygame.sprite.Group()
+		self.interaction_sprites = pygame.sprite.Group()
 
 		apple_image = pygame.image.load('PydewValley/graphics/fruit/apple.png')
 
@@ -45,18 +46,25 @@ class Level:
 			Wildflower((obj.x, obj.y), obj.image, self.all_sprites)
 
 
-
+			
 			
 		ground_image = pygame.image.load("PydewValley/graphics/world/ground.png").convert_alpha()
 		Generic((0,0), ground_image, LAYERS['ground'], self.all_sprites)
 
-		self.player = Player((1547.813354, 1943.214233), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.tree_sprites, self.all_sprites, )
+		for obj in tmx_data.get_layer_by_name('Player'):
+			if obj.name == 'Bed':
+				self.bed = Interaction((obj.x, obj.y), (obj.width, obj.height), obj.name, [self.interaction_sprites])
+			if obj.name == 'Start':
+				self.player = Player((obj.x, obj.y), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.tree_sprites, self.interaction_sprites, self.next_day, self.all_sprites)
 		
 		for obj in tmx_data.get_layer_by_name('Trees'):
 			Tree((obj.x, obj.y), obj.image, obj.name, apple_image, self.player.add_item, [self.all_sprites, self.collision_sprites, self.tree_sprites])
 
 		self.overlay = Overlay(self.player)
 
+	def next_day(self):
+		for tree in self.tree_sprites:
+			tree.reset()
 
 	def run(self,dt):
 		self.display_surface.fill('black')
