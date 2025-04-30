@@ -5,10 +5,11 @@ from mytimer import Timer
 from overlay import Overlay
 from cameragroup import CameraGroup
 from sprites import Generic, Water, Wildflower, Tree, Interaction
+from transition import  Transition
 import pytmx 
 from pytmx.util_pygame import load_pygame
 from support import import_folder
-
+from soil import SoilLayer
 
 class Level:
 	def __init__(self):
@@ -21,6 +22,8 @@ class Level:
 		self.collision_sprites = pygame.sprite.Group()
 		self.tree_sprites = pygame.sprite.Group()
 		self.interaction_sprites = pygame.sprite.Group()
+		self.soil_layer = SoilLayer()
+		print(self.soil_layer.grid)
 
 		apple_image = pygame.image.load('PydewValley/graphics/fruit/apple.png')
 
@@ -55,21 +58,28 @@ class Level:
 			if obj.name == 'Bed':
 				self.bed = Interaction((obj.x, obj.y), (obj.width, obj.height), obj.name, [self.interaction_sprites])
 			if obj.name == 'Start':
-				self.player = Player((obj.x, obj.y), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.tree_sprites, self.interaction_sprites, self.next_day, self.all_sprites)
+				self.player = Player((obj.x, obj.y), pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_q, pygame.K_LCTRL, self.collision_sprites, self.tree_sprites, self.interaction_sprites, self.use_bed, self.soil_layer, self.all_sprites)
 		
 		for obj in tmx_data.get_layer_by_name('Trees'):
 			Tree((obj.x, obj.y), obj.image, obj.name, apple_image, self.player.add_item, [self.all_sprites, self.collision_sprites, self.tree_sprites])
 
 		self.overlay = Overlay(self.player)
 
+		self.next_day_transition = Transition(self.player, self.next_day)
+
 	def next_day(self):
 		for tree in self.tree_sprites:
 			tree.reset()
+
+	def use_bed(self):
+		self.next_day_transition.start()
 
 	def run(self,dt):
 		self.display_surface.fill('black')
 		self.all_sprites.draw(self.display_surface, (self.player.rect.center))
 		self.all_sprites.update(dt)
 		self.overlay.draw(self.display_surface)
+		self.next_day_transition.update(dt)
+		self.next_day_transition.draw()
 		
 

@@ -5,7 +5,7 @@ from mytimer import Timer
 from debug import get_coords
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, interaction_sprite, next_day, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, interaction_sprite, next_day, soil_layer, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
@@ -14,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.collision_sprites = collision_sprites
         self.tree_sprites = tree_sprites
         self.interaction_sprites = interaction_sprite
+        self.soil_layer = soil_layer
 
         self.next_day = next_day
         # self.image = self.animations['up'][0]
@@ -27,6 +28,8 @@ class Player(pygame.sprite.Sprite):
         self.plant_key = plant_key
         self.tool_scroll_key = tool_scroll_key
         self.seed_scroll_key = seed_scroll_key
+        
+        self.input_locked = False
 
         self.z = LAYERS['main']
 
@@ -83,7 +86,7 @@ class Player(pygame.sprite.Sprite):
     
     @property
     def locked(self):
-        return self.timers['seed use'].active or self.timers['tool use'].active
+        return self.timers['seed use'].active or self.timers['tool use'].active or self.input_locked
     
     def use_seed(self):
         print(f'Planting {self.selected_seed}')
@@ -92,11 +95,12 @@ class Player(pygame.sprite.Sprite):
         print(f'Using {self.selected_tool}')
         interaction_point = self.get_interaction_point()
         if self.selected_tool == 'axe':
-
             for tree in self.tree_sprites:
                 if tree.rect.collidepoint(interaction_point):
                     print(f"chopping {tree}")
                     tree.damage()
+        if self.selected_tool == 'hoe':
+            self.soil_layer.use_hoe(self.rect)
 
     def check_interation(self):
         for sprite in self.interaction_sprites:
@@ -147,6 +151,8 @@ class Player(pygame.sprite.Sprite):
         elif self.direction.magnitude() == 0:
             self.status += '_idle'
 
+
+
     def input(self):
         if self.locked: return
         keys = pygame.key.get_pressed()
@@ -183,6 +189,7 @@ class Player(pygame.sprite.Sprite):
         print(self.item_inventory)
     
     def movement(self, dt):
+        if self.locked: return
         if self.direction.magnitude() != 0:
             self.direction.normalize_ip()
         self.hitbox.x += self.direction.x * self.speed * dt
@@ -214,6 +221,11 @@ class Player(pygame.sprite.Sprite):
         offset = pygame.Vector2(PLAYER_TOOL_OFFSET[direction])
         return self.rect.center + offset
     
+    def lock_input(self):
+        self.input_locked = True
+
+    def unlock_input(self):
+        self.input_locked = False
 
 
 
