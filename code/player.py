@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
                     print(f"chopping {tree}")
                     tree.damage()
         if self.selected_tool == 'hoe':
-            self.soil_layer.use_hoe(self.rect)
+                self.soil_layer.use_hoe(interaction_point)
 
     def check_interation(self):
         for sprite in self.interaction_sprites:

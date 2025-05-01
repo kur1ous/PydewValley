@@ -22,8 +22,7 @@ class Level:
 		self.collision_sprites = pygame.sprite.Group()
 		self.tree_sprites = pygame.sprite.Group()
 		self.interaction_sprites = pygame.sprite.Group()
-		self.soil_layer = SoilLayer()
-		print(self.soil_layer.grid)
+		self.soil_layer = SoilLayer(self.all_sprites)
 
 		apple_image = pygame.image.load('PydewValley/graphics/fruit/apple.png')
 
@@ -76,10 +75,13 @@ class Level:
 
 	def run(self,dt):
 		self.display_surface.fill('black')
-		self.all_sprites.draw(self.display_surface, (self.player.rect.center))
+		self.all_sprites.draw(self.display_surface, (self.player.rect.center), self.soil_layer.grid)
 		self.all_sprites.update(dt)
 		self.overlay.draw(self.display_surface)
 		self.next_day_transition.update(dt)
 		self.next_day_transition.draw()
+
+
+
 		
 
