@@ -17,6 +17,15 @@ def import_folder(folder):
             images.append(img)
     return images
 
+def import_folder_dict(folder):
+    surface_dict = {}
+
+    for f in os.scandir(folder):
+        img = pygame.image.load(f.path).convert_alpha()
+        file_name = f.name.split(".")[0]
+        surface_dict[file_name] = img
+    return surface_dict
+
 # import_assets("PydewValley/graphics/character/")
 
 # print(import_assets("PydewValley/graphics/character"))
