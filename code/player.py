@@ -60,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.seed_index = 0
 
         self.timers = {
-            'tool use': Timer(1, self.use_tool),
+            'tool use': Timer(0.5, self.use_tool),
             'seed use': Timer(1, self.use_seed),
         }
 
@@ -101,6 +101,8 @@ class Player(pygame.sprite.Sprite):
                     tree.damage()
         if self.selected_tool == 'hoe':
                 self.soil_layer.use_hoe(interaction_point)
+        if self.selected_tool == "water":
+            self.soil_layer.water(interaction_point)
 
     def check_interation(self):
         for sprite in self.interaction_sprites:

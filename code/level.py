@@ -10,6 +10,7 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 from support import import_folder
 from soil import SoilLayer
+from weather import Rain
 
 class Level:
 	def __init__(self):
@@ -64,11 +65,16 @@ class Level:
 
 		self.overlay = Overlay(self.player)
 
+		# rain
+		self.raining = True
+		self.rain = Rain(self.all_sprites)
+
 		self.next_day_transition = Transition(self.player, self.next_day)
 
 	def next_day(self):
 		for tree in self.tree_sprites:
 			tree.reset()
+		self.soil_layer.remove_water()
 
 	def use_bed(self):
 		self.next_day_transition.start()
@@ -81,7 +87,8 @@ class Level:
 		self.next_day_transition.update(dt)
 		self.next_day_transition.draw()
 
-
+		if self.raining:
+			self.rain.update()
 
 		
 

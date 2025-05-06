@@ -3,6 +3,7 @@ from settings import *
 from pytmx.util_pygame import load_pygame
 from sprites import Generic
 from support import import_folder, import_assets, import_folder_dict
+import random
 
 
 
@@ -10,11 +11,17 @@ class SoilTile(Generic):
     def __init__(self, pos, surface, groups):
         super().__init__(pos, surface, LAYERS['soil'], groups)
 
+class WaterTile(Generic):
+    def __init__(self, pos, surface, groups):
+        super().__init__(pos, surface, LAYERS['soil water'], groups)
+
 
 class SoilLayer:
 
     def __init__(self, all_sprites):
         self.soil_sprites = pygame.sprite.Group()
+        self.water_sprites = pygame.sprite.Group()
+
 
 
         ground = pygame.image.load("PydewValley/graphics/world/ground.png")
@@ -24,6 +31,8 @@ class SoilLayer:
         self.all_sprites = all_sprites
         self.soil_image = pygame.image.load('PydewValley/graphics/soil/soil.png').convert_alpha()
         self.soil_images = import_folder_dict("PydewValley/graphics/soil/")
+
+        self.water_images = import_folder("PydewValley/graphics/soil_water")
 
         print(f'image: {self.soil_images}')
 
@@ -48,8 +57,8 @@ class SoilLayer:
                 self.grid[y][x-1].append('left')
                 self.grid[y][x+1].append('right')
                 # up/down
-                self.grid[y+1][x].append('up')
-                self.grid[y-1][x].append('down')
+                self.grid[y-1][x].append('top')
+                self.grid[y+1][x].append('bottom')
             
             self.create_soil_sprites()
                 
@@ -60,19 +69,20 @@ class SoilLayer:
             print(pos)
 
     def create_soil_sprites(self):
-        self.soil_sprites.empty()
+        for soil_sprite in self.soil_sprites:
+            soil_sprite.kill()
 
         for y, row in enumerate(self.grid):
             for x, col in enumerate(row):
                 if 'X' in col:
                     left = 'left' in col
                     right = 'right' in col
-                    bottom = 'down' in col
-                    top = 'up' in col
+                    bottom = 'bottom' in col
+                    top = 'top' in col
 
                     file_name = ""
 
-                    if not all([left, top, right, bottom]):
+                    if not any([left, top, right, bottom]):
                         file_name = "o" # no neighbours
 
                     elif all([left, top, right, bottom]):
@@ -87,3 +97,37 @@ class SoilLayer:
                     img = self.soil_images[file_name]
 
                     SoilTile((x * TILE_SIZE, y * TILE_SIZE), img, [self.all_sprites, self.soil_sprites])
+                    print(file_name)
+    
+    def water(self, pos):
+        x, y = self.to_tile_coordinates(pos)
+        if 'X' in self.grid[y][x]:
+            if 'W' not in self.grid[y][x]:
+                self.grid[y][x].append('W')
+
+                img = self.water_images[random.randint(0, len(self.water_images) - 1)]
+                WaterTile((x * TILE_SIZE, y * TILE_SIZE), img, [self.all_sprites, self.water_sprites])
+                print(f'Added W at {pos}')
+            else: print("Already Watered!")
+        else: print(f"No Soil to Water at {pos}!")
+    
+    def remove_water(self):
+        for water_sprite in self.water_sprites:
+            water_sprite.kill()
+        
+        for row in self.grid:
+            for cell in row:
+                while 'W' in cell:
+                    cell.remove('W')
+        
+        
+
+
+
+        
+
+
+
+
+
+

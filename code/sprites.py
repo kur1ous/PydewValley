@@ -128,3 +128,25 @@ class Interaction(Generic):
         surface = pygame.Surface(size)
         super().__init__(pos, surface, LAYERS['main'], groups)
         self.name = name
+
+class Drops(Generic):
+    def __init__(self, pos, surface, groups):
+        super().__init__(pos, surface, LAYERS['rain floor'], groups)
+        self.lifetime = random.random() * 0.1 + 0.4
+
+    def update(self, dt):
+        self.lifetime -= dt
+        if self.lifetime <= 0:
+            self.kill()
+
+class FallingDrops(Drops):
+    def __init__(self, pos, surface, groups):
+        super().__init__(pos, surface, LAYERS['rain drops'], groups)
+        super().update()
+        self.pos = pos
+
+        self.direction = pygame.Vector2(-2, 4)
+        self.speed = random.randint(200, 250)
+    
+    def update(self):
+        self.pos -= self.direction * self.speed
