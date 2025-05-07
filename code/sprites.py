@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from support import import_assets
+from support import import_assets, import_folder
 import random
 
 class Generic(pygame.sprite.Sprite):
@@ -139,14 +139,30 @@ class Drops(Generic):
         if self.lifetime <= 0:
             self.kill()
 
+
 class FallingDrops(Drops):
     def __init__(self, pos, surface, groups):
-        super().__init__(pos, surface, LAYERS['rain drops'], groups)
-        super().update()
+        super().__init__(pos, surface, groups)
         self.pos = pos
+
+        self.Falling = True
+    
+
+        self.z == LAYERS['rain drops']
 
         self.direction = pygame.Vector2(-2, 4)
         self.speed = random.randint(200, 250)
     
-    def update(self):
-        self.pos -= self.direction * self.speed
+    def update(self, dt):
+        super().update(dt)
+        movement = self.direction * self.speed * dt
+        self.pos += movement
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        
+        self.lifetime -= dt
+        if self.lifetime <= 0:
+            self.Falling = False
+            print(self.Falling)
+            self.kill()
+
+            # Drops((self.rect.x, self.rect.y), )

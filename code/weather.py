@@ -1,6 +1,6 @@
 import pygame
 from support import import_folder
-from sprites import Drops
+from sprites import Drops, FallingDrops
 import random
 
 class Rain:
@@ -14,5 +14,10 @@ class Rain:
         self.width, self.height = ground.get_size()
     
     def update(self):
-        Drops((random.randint(0, self.width), random.randint(0, self.height)), random.choice(self.rain_floor), self.all_sprites)
+        self.FallingDrop = FallingDrops((random.randint(0, self.width), random.randint(0, self.height)), random.choice(self.rain_drops), self.all_sprites)
+
+        if self.FallingDrop.Falling == False: # look into fixing this
+            Drops((self.FallingDrop.rect.x, self.FallingDrop.rect.y), random.choice(self.rain_floor), self.all_sprites)
+
+        
 

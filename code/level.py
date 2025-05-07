@@ -4,7 +4,7 @@ from settings import *
 from mytimer import Timer
 from overlay import Overlay
 from cameragroup import CameraGroup
-from sprites import Generic, Water, Wildflower, Tree, Interaction
+from sprites import Generic, Water, Wildflower, Tree, Interaction, FallingDrops
 from transition import  Transition
 import pytmx 
 from pytmx.util_pygame import load_pygame
@@ -68,6 +68,7 @@ class Level:
 		# rain
 		self.raining = True
 		self.rain = Rain(self.all_sprites)
+
 
 		self.next_day_transition = Transition(self.player, self.next_day)
 

@@ -59,11 +59,13 @@ class SoilLayer:
                 # up/down
                 self.grid[y-1][x].append('top')
                 self.grid[y+1][x].append('bottom')
+            else: print("Already has Soil!")
             
             self.create_soil_sprites()
                 
             # SoilTile((x*TILE_SIZE, y*TILE_SIZE), self.soil_image, [self.all_sprites, self.soil_sprites])
             print("Farmable!")
+            
         else:
             print("Not Farmable!")
             print(pos)
