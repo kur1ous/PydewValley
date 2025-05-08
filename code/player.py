@@ -89,7 +89,8 @@ class Player(pygame.sprite.Sprite):
         return self.timers['seed use'].active or self.timers['tool use'].active or self.input_locked
     
     def use_seed(self):
-        print(f'Planting {self.selected_seed}')
+        interaction_point = self.get_interaction_point()
+        self.soil_layer.plant_seed(interaction_point, self.selected_seed)
     
     def use_tool(self):
         print(f'Using {self.selected_tool}')

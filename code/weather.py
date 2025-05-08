@@ -16,8 +16,8 @@ class Rain:
     def update(self):
         self.FallingDrop = FallingDrops((random.randint(0, self.width), random.randint(0, self.height)), random.choice(self.rain_drops), self.all_sprites)
 
-        if self.FallingDrop.Falling == False: # look into fixing this
-            Drops((self.FallingDrop.rect.x, self.FallingDrop.rect.y), random.choice(self.rain_floor), self.all_sprites)
+        # if self.FallingDrop.Falling == False: # look into fixing this
+        Drops((self.FallingDrop.rect.x, self.FallingDrop.rect.y), random.choice(self.rain_floor), self.all_sprites)
 
         
 

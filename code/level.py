@@ -11,6 +11,7 @@ from pytmx.util_pygame import load_pygame
 from support import import_folder
 from soil import SoilLayer
 from weather import Rain
+import random
 
 class Level:
 	def __init__(self):
@@ -66,7 +67,7 @@ class Level:
 		self.overlay = Overlay(self.player)
 
 		# rain
-		self.raining = True
+		self.raining = False
 		self.rain = Rain(self.all_sprites)
 
 
@@ -76,6 +77,9 @@ class Level:
 		for tree in self.tree_sprites:
 			tree.reset()
 		self.soil_layer.remove_water()
+		self.raining = random.randint(0,10) < 3
+		if self.raining:
+			self.soil_layer.water_all()
 
 	def use_bed(self):
 		self.next_day_transition.start()

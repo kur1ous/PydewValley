@@ -162,7 +162,6 @@ class FallingDrops(Drops):
         self.lifetime -= dt
         if self.lifetime <= 0:
             self.Falling = False
-            print(self.Falling)
             self.kill()
 
             # Drops((self.rect.x, self.rect.y), )

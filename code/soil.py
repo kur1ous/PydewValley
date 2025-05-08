@@ -15,14 +15,25 @@ class WaterTile(Generic):
     def __init__(self, pos, surface, groups):
         super().__init__(pos, surface, LAYERS['soil water'], groups)
 
+class Plant(Generic):
+    def __init__(self, pos, images, plant_type, check_watered, groups):
+        self.images = images
+        super().__init__(pos, self.images[0], LAYERS['ground plant'], groups)
+        self.plant_type = plant_type
+        self.check_watered = check_watered
+
+        self.rect.midbottom = pos
+
 
 class SoilLayer:
 
     def __init__(self, all_sprites):
         self.soil_sprites = pygame.sprite.Group()
         self.water_sprites = pygame.sprite.Group()
+        self.plant_sprites = pygame.sprite.Group()
 
-
+        #rain toggle
+        self.raining = False
 
         ground = pygame.image.load("PydewValley/graphics/world/ground.png")
         width_tiles = ground.get_width() // TILE_SIZE
@@ -33,6 +44,8 @@ class SoilLayer:
         self.soil_images = import_folder_dict("PydewValley/graphics/soil/")
 
         self.water_images = import_folder("PydewValley/graphics/soil_water")
+
+        self.plant_images = import_assets("PydewValley/graphics/fruit")
 
         print(f'image: {self.soil_images}')
 
@@ -62,6 +75,9 @@ class SoilLayer:
             else: print("Already has Soil!")
             
             self.create_soil_sprites()
+
+            if self.raining:
+                self.water(pos)
                 
             # SoilTile((x*TILE_SIZE, y*TILE_SIZE), self.soil_image, [self.all_sprites, self.soil_sprites])
             print("Farmable!")
@@ -121,6 +137,26 @@ class SoilLayer:
             for cell in row:
                 while 'W' in cell:
                     cell.remove('W')
+        
+        self.raining = False
+    
+    def water_all(self):
+        for soil in self.soil_sprites:
+            self.water(soil.rect.center)
+
+    def plant_seed(self, pos, seed_type):
+        x, y = self.to_tile_coordinates(pos)
+        if 'X' in self.grid[y][x] and 'P' not in self.grid[y][x]:
+            self.grid[y][x].append('P')
+            print(f"planting {seed_type}")
+            plant_x = (x + 0.5) * TILE_SIZE
+            plant_y = (y+1) * TILE_SIZE
+
+            plant_y -= 16 if seed_type == "corn" else 8
+            Plant((plant_x, plant_y), self.plant_images[seed_type], seed_type, None, [self.all_sprites, self.plant_sprites])
+
+
+                
         
         
 
