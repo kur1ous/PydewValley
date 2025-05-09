@@ -16,13 +16,31 @@ class WaterTile(Generic):
         super().__init__(pos, surface, LAYERS['soil water'], groups)
 
 class Plant(Generic):
-    def __init__(self, pos, images, plant_type, check_watered, groups):
+    def __init__(self, pos, images, plant_type, check_watered, age, max_age, growth_speed, groups):
         self.images = images
         super().__init__(pos, self.images[0], LAYERS['ground plant'], groups)
         self.plant_type = plant_type
         self.check_watered = check_watered
 
         self.rect.midbottom = pos
+
+        self.age = age
+        self.max_age = max_age
+        self.growth_speed = growth_speed
+
+    def grow(self):
+        if self.check_watered:
+            self.age += self.growth_speed
+            print(self.age)
+            if self.age >= self.max_age: 
+                self.age = self.max_age
+            self.image = self.images[self.age]
+        else: return
+
+                
+    
+
+            
 
 
 class SoilLayer:
@@ -75,7 +93,6 @@ class SoilLayer:
             else: print("Already has Soil!")
             
             self.create_soil_sprites()
-
             if self.raining:
                 self.water(pos)
                 
@@ -130,17 +147,18 @@ class SoilLayer:
         else: print(f"No Soil to Water at {pos}!")
     
     def remove_water(self):
+        self.raining = False
         for water_sprite in self.water_sprites:
             water_sprite.kill()
-        
         for row in self.grid:
             for cell in row:
                 while 'W' in cell:
                     cell.remove('W')
+                    print(f'wter removed at {cell}')
         
-        self.raining = False
     
     def water_all(self):
+        self.raining = True
         for soil in self.soil_sprites:
             self.water(soil.rect.center)
 
@@ -153,8 +171,17 @@ class SoilLayer:
             plant_y = (y+1) * TILE_SIZE
 
             plant_y -= 16 if seed_type == "corn" else 8
-            Plant((plant_x, plant_y), self.plant_images[seed_type], seed_type, None, [self.all_sprites, self.plant_sprites])
+            Plant((plant_x, plant_y), self.plant_images[seed_type], seed_type, self.check_watered((x*TILE_SIZE, y*TILE_SIZE)), 0, 3, GROW_SPEED[seed_type], [self.all_sprites, self.plant_sprites])
 
+    def check_watered(self, pos): # fix this method
+        x, y = self.to_tile_coordinates(pos)
+        if 'W' in self.grid[y][x] and 'P' in self.grid[y][x]: 
+                return True
+        return False
+
+    def grow_plnats(self):
+        for plant in self.plant_sprites:
+            plant.grow()
 
                 
         

@@ -80,6 +80,7 @@ class Level:
 		self.raining = random.randint(0,10) < 3
 		if self.raining:
 			self.soil_layer.water_all()
+		self.soil_layer.grow_plnats()
 
 	def use_bed(self):
 		self.next_day_transition.start()
