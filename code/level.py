@@ -76,14 +76,23 @@ class Level:
 	def next_day(self):
 		for tree in self.tree_sprites:
 			tree.reset()
+		self.soil_layer.grow_plnats()
+
 		self.soil_layer.remove_water()
-		self.raining = random.randint(0,10) < 3
+		self.raining = random.randint(0,10) < 2
 		if self.raining:
 			self.soil_layer.water_all()
-		self.soil_layer.grow_plnats()
+
 
 	def use_bed(self):
 		self.next_day_transition.start()
+
+	def plant_collision(self):
+		for plant in self.soil_layer.plant_sprites:
+			if plant.rect.colliderect(self.player.rect):
+				print(f"colliding at {self.player.rect}")
+
+				self.soil_layer.harvest(plant, self.player.add_item)
 
 	def run(self,dt):
 		self.display_surface.fill('black')
@@ -96,5 +105,6 @@ class Level:
 		if self.raining:
 			self.rain.update()
 
+		self.plant_collision()
 		
 

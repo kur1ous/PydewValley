@@ -29,6 +29,7 @@ class CameraGroup(pygame.sprite.Group):
                     rect.topleft -= offset
 
                     color = 'green' if 'F' in cell else 'red'
-                    # pygame.draw.rect(surface, color, rect, 1)
+                    color2 = 'blue' if 'P' in cell else 'white'
+                    # pygame.draw.rect(surface, color2, rect, 1)
 
 			

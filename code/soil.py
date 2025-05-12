@@ -16,26 +16,31 @@ class WaterTile(Generic):
         super().__init__(pos, surface, LAYERS['soil water'], groups)
 
 class Plant(Generic):
-    def __init__(self, pos, images, plant_type, check_watered, age, max_age, growth_speed, groups):
+    def __init__(self, pos, images, plant_type, check_watered, groups):
         self.images = images
         super().__init__(pos, self.images[0], LAYERS['ground plant'], groups)
         self.plant_type = plant_type
         self.check_watered = check_watered
 
-        self.rect.midbottom = pos
+        self.rect.midbottom = pos   
 
-        self.age = age
-        self.max_age = max_age
-        self.growth_speed = growth_speed
+        self.hitbox = self.rect.inflate(-2,-2)
+
+        self.hitbox.midbottom = self.rect.midbottom
+
+        self.age = 0
+        self.max_age = len(self.images) - 1
+        self.growth_speed = GROW_SPEED[self.plant_type]
 
     def grow(self):
-        if self.check_watered:
-            self.age += self.growth_speed
-            print(self.age)
-            if self.age >= self.max_age: 
-                self.age = self.max_age
-            self.image = self.images[self.age]
-        else: return
+        if not self.check_watered(self.rect.midbottom): return
+        self.age += self.growth_speed
+        print(self.age)
+        if self.age >= self.max_age: 
+            self.age = self.max_age
+        self.image = self.images[int(self.age)]
+        self.rect = self.image.get_frect(midbottom = self.rect.midbottom)
+
 
                 
     
@@ -171,19 +176,22 @@ class SoilLayer:
             plant_y = (y+1) * TILE_SIZE
 
             plant_y -= 16 if seed_type == "corn" else 8
-            Plant((plant_x, plant_y), self.plant_images[seed_type], seed_type, self.check_watered((x*TILE_SIZE, y*TILE_SIZE)), 0, 3, GROW_SPEED[seed_type], [self.all_sprites, self.plant_sprites])
+            Plant((plant_x, plant_y), self.plant_images[seed_type], seed_type, self.check_watered, [self.all_sprites, self.plant_sprites])
 
     def check_watered(self, pos): # fix this method
         x, y = self.to_tile_coordinates(pos)
-        if 'W' in self.grid[y][x] and 'P' in self.grid[y][x]: 
-                return True
-        return False
-
+        print(x, y)
+        return 'W' in self.grid[y][x]
     def grow_plnats(self):
         for plant in self.plant_sprites:
             plant.grow()
 
-                
+    def harvest(self, plant, add_item):
+        if plant.age != plant.max_age: return
+        add_item(plant.plant_type)
+        x, y = self.to_tile_coordinates(plant.rect.center)
+        self.grid[y][x].remove('P')
+        plant.kill()
         
         
 
