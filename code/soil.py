@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
-from sprites import Generic
+from sprites import Generic, Particle
 from support import import_folder, import_assets, import_folder_dict
 import random
 
@@ -25,12 +25,17 @@ class Plant(Generic):
         self.rect.midbottom = pos   
 
         self.hitbox = self.rect.inflate(-2,-2)
-
         self.hitbox.midbottom = self.rect.midbottom
 
+        self.harvestable = False
+
+
+        print(f"hitbox {self.hitbox}, midbottom: {self.hitbox.midbottom}")
         self.age = 0
         self.max_age = len(self.images) - 1
         self.growth_speed = GROW_SPEED[self.plant_type]
+
+        
 
     def grow(self):
         if not self.check_watered(self.rect.midbottom): return
@@ -38,8 +43,17 @@ class Plant(Generic):
         print(self.age)
         if self.age >= self.max_age: 
             self.age = self.max_age
+            self.harvestable = True
         self.image = self.images[int(self.age)]
+        self.hitbox = self.rect.inflate(-2,-2)
+        self.hitbox.midbottom = self.rect.midbottom
         self.rect = self.image.get_frect(midbottom = self.rect.midbottom)
+
+    def is_harvestable(self):
+        return self.harvestable
+    
+    def get_fruit(self):
+        return self.plant_type
 
 
                 
@@ -65,6 +79,7 @@ class SoilLayer:
         self.all_sprites = all_sprites
         self.soil_image = pygame.image.load('PydewValley/graphics/soil/soil.png').convert_alpha()
         self.soil_images = import_folder_dict("PydewValley/graphics/soil/")
+
 
         self.water_images = import_folder("PydewValley/graphics/soil_water")
 
@@ -182,17 +197,18 @@ class SoilLayer:
         x, y = self.to_tile_coordinates(pos)
         print(x, y)
         return 'W' in self.grid[y][x]
+    
     def grow_plnats(self):
         for plant in self.plant_sprites:
             plant.grow()
 
     def harvest(self, plant, add_item):
-        if plant.age != plant.max_age: return
-        add_item(plant.plant_type)
-        x, y = self.to_tile_coordinates(plant.rect.center)
+        if not plant.is_harvestable(): return
+        add_item(plant.get_fruit())
+        x, y = self.to_tile_coordinates(plant.rect.midbottom)
         self.grid[y][x].remove('P')
+        # Particle(plant.hitbox, plant.image, LAYERS['main'], ()[0]) //fix this holy crap
         plant.kill()
-        
         
 
 

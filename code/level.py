@@ -89,8 +89,8 @@ class Level:
 
 	def plant_collision(self):
 		for plant in self.soil_layer.plant_sprites:
-			if plant.rect.colliderect(self.player.rect):
-				print(f"colliding at {self.player.rect}")
+			if plant.hitbox.colliderect(self.player.hitbox):
+
 
 				self.soil_layer.harvest(plant, self.player.add_item)
 
