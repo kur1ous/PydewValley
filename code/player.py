@@ -16,6 +16,8 @@ class Player(pygame.sprite.Sprite):
         self.interaction_sprites = interaction_sprite
         self.soil_layer = soil_layer
 
+
+
         self.next_day = next_day
         # self.image = self.animations['up'][0]
 
@@ -71,6 +73,11 @@ class Player(pygame.sprite.Sprite):
             'tomato' : 0
         }
 
+        self.seed_inventory = {
+            'corn': 5,
+            'tomato': 5
+        }
+
 
     @property
     def image(self):
@@ -90,7 +97,11 @@ class Player(pygame.sprite.Sprite):
     
     def use_seed(self):
         interaction_point = self.get_interaction_point()
-        self.soil_layer.plant_seed(interaction_point, self.selected_seed)
+        if self.seed_inventory[self.selected_seed] > 0 and self.soil_layer.check_if_seedable(interaction_point):
+            self.soil_layer.plant_seed(interaction_point, self.selected_seed)
+            self.seed_inventory[self.selected_seed] -= 1
+
+
     
     def use_tool(self):
         print(f'Using {self.selected_tool}')

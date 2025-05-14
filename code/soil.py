@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
-from sprites import Generic, Particle
+from sprites import Generic, Particle, FadingParticle
 from support import import_folder, import_assets, import_folder_dict
 import random
 
@@ -207,8 +207,14 @@ class SoilLayer:
         add_item(plant.get_fruit())
         x, y = self.to_tile_coordinates(plant.rect.midbottom)
         self.grid[y][x].remove('P')
-        # Particle(plant.hitbox, plant.image, LAYERS['main'], ()[0]) //fix this holy crap
+        FadingParticle(plant.rect.topleft, plant.image, LAYERS['main'], self.all_sprites) 
         plant.kill()
+
+    def check_if_seedable(self, pos):
+        x, y = self.to_tile_coordinates(pos)
+        if 'P' not in self.grid[y][x] and 'X' in self.grid[y][x]: return True
+        return False
+
         
 
 

@@ -45,7 +45,7 @@ class Tree(Generic):
             if len(self.apple_sprites.sprites()) > 0:
                 random_apple = random.choice(self.apple_sprites.sprites())
                 random_apple.kill()
-                Particle(random_apple.rect.topleft, self.apple_image, LAYERS['fruit'], self.groups()[0])
+                FadingParticle(random_apple.rect.topleft, self.apple_image, LAYERS['fruit'], self.groups()[0])
                 self.add_item('apple')
             
 
@@ -54,7 +54,7 @@ class Tree(Generic):
                 self.health -= 1
                 Particle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0], 0.05)
                 if self.health <= 0:
-                    Particle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0])
+                    FadingParticle(self.rect.topleft, self.image, LAYERS['fruit'], self.groups()[0])
                     
                     self.image = self.stump_image
                     self.rect = self.image.get_frect(midbottom=self.rect.midbottom)
@@ -121,7 +121,19 @@ class Particle(Generic):
 class FadingParticle(Particle):
     def __init__(self, pos, surface, z, groups, duration=0.2):
         super().__init__(pos, surface, z, groups)
-        self.duration = duration
+        self.start_duration = duration
+        self.image = surface.convert_alpha()
+        self.og_image = self.image.copy()
+
+    def update(self, dt):
+        self.duration -= dt
+        if self.duration <= 0:
+            self.kill()
+        else:
+            alpha = max(0, int(255 * (self.duration / self.start_duration)))
+            self.image = self.og_image.copy()
+            self.image.set_alpha(alpha)
+
 
 class Interaction(Generic):
     def __init__(self, pos, size, name, groups):
@@ -137,6 +149,7 @@ class Drops(Generic):
     def update(self, dt):
         self.lifetime -= dt
         if self.lifetime <= 0:
+            FadingParticle(self.rect.topleft, self.image, LAYERS['main'], self.groups()[0])
             self.kill()
 
 
