@@ -5,7 +5,7 @@ from mytimer import Timer
 from debug import get_coords
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, interaction_sprite, next_day, soil_layer, groups):
+    def __init__(self, pos, up_key, down_key, left_key, right_key, run_key, use_key, plant_key, tool_scroll_key, seed_scroll_key, collision_sprites, tree_sprites, interaction_sprite, next_day, soil_layer, open_menu, groups):
         super().__init__(groups)
 
         self.animations = import_assets("PydewValley/graphics/character/")
@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.tree_sprites = tree_sprites
         self.interaction_sprites = interaction_sprite
         self.soil_layer = soil_layer
+        self.open_menu = open_menu
 
 
 
@@ -122,9 +123,12 @@ class Player(pygame.sprite.Sprite):
                 if sprite.rect.collidepoint(self.rect.center):
                     print(f'{sprite.name}, Day reset!')
                     self.next_day()
+            elif sprite.name == "Trader":
+                if sprite.rect.collidepoint(self.rect.center):
+                    self.open_menu()
 
             else:
-                print("nothing to interact with!")
+                print(sprite.name)
 
     def tool_scroll(self):
         self.tool_index += 1
